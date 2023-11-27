@@ -1,7 +1,7 @@
 const pg = require('pg');
 const db_values = require('./db-config.js');
 
-function authenticateUser(username, pass) {
+async function authenticateUser(username, pass) {
     var db = new pg.Client({
         user: db_values.user,
         host: db_values.host,
@@ -10,14 +10,14 @@ function authenticateUser(username, pass) {
         port: db_values.port
     });
     
-    db.connect();
+    await db.connect();
     
     db.query(`SELECT * FROM authenticate_user('${username}', '${pass}');`, (err, res) => {
         if (err) {
             console.error("Error executing query", err.stack);
             return -1;
         } else {
-            if (res.rows.authenticate_user != 1) {
+            if (res.rows.authenticate_user == 0) {
                 console.log("Authentication failed.\n");
                 db.end();
                 return 0;
@@ -30,13 +30,24 @@ function authenticateUser(username, pass) {
     });
 }
 
-function registerUser(username, pass) {
+async function registerUser(username, pass) {
+    var db = new pg.Client({
+        user: db_values.user,
+        host: db_values.host,
+        database: db_values.database,
+        password: db_values.password,
+        port: db_values.port
+    });
+    
+    await db.connect();
+    // console.log(db);
     db.query(`SELECT * FROM Register_user('${username}', '${pass}');`, (err, res) => {
         if (err) {
             console.error("Error executing query", err.stack);
             return -1;
         } else {
-            if (res != 1) {
+            db.end();
+            if (res.rows.register_user == 0) {
                 console.log("Registration failed.\n");
                 return 0;
             } else {

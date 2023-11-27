@@ -33,14 +33,18 @@ CREATE OR REPLACE FUNCTION Register_user(usernamex VARCHAR(10), passx VARCHAR(10
     LANGUAGE plpgsql
     AS
 $$
+DECLARE
+    user_exists BOOLEAN;
 BEGIN
-    SELECT *
-    FROM Users
-    WHERE Username = usernamex;
-    IF FOUND THEN
+    -- Check if the username already exists
+    SELECT EXISTS (SELECT 1 FROM Users WHERE Username = usernamex) INTO user_exists;
+
+    IF user_exists THEN
+        -- Username already exists
         RAISE NOTICE 'Same username already exists! Try another one.';
         RETURN 0;
     ELSE
+        -- Username does not exist, insert into the Users table
         INSERT INTO Users
         VALUES (usernamex, passx);
         RETURN 1;

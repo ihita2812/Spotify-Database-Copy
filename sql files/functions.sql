@@ -79,6 +79,37 @@ RETURN QUERY
 END
 $$;
 
+CREATE OR REPLACE FUNCTION Top_artists_genre()
+RETURNS TABLE (Genre GENRETYPE, Artist_Name VARCHAR(100)) AS
+$$
+BEGIN
+    RETURN QUERY
+    WITH RankedArtists AS (
+        SELECT
+            a.Artist_Name,
+            al.Genre,
+            ROW_NUMBER() OVER (PARTITION BY al.Genre ORDER BY SUM(fh.Count) DESC) AS rank
+        FROM
+            Artists a
+            JOIN Albums al ON a.Artist_Id = al.Artist_Id
+            LEFT JOIN Frequency_heard fh ON al.Album_Id = fh.Album_Id
+        GROUP BY
+            a.Artist_Id, al.Genre
+    )
+    SELECT
+        ra.Genre,
+        ra.Artist_Name
+    FROM
+        RankedArtists ra
+        LEFT JOIN Frequency_heard fh ON ra.Artist_Name = fh.Username
+    WHERE
+        ra.rank = 1
+    GROUP BY
+        ra.Genre, ra.Artist_Name;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
 --------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION User_top_genre(userx VARCHAR(10))
@@ -106,14 +137,14 @@ $$;
 CREATE OR REPLACE FUNCTION User_top_artists(userx VARCHAR(10))
     RETURNS TABLE(
         Artist VARCHAR(100),
-        No_of_listens INT
+        No_of_listens BIGINT
     )
     LANGUAGE plpgsql
     AS
 $$
 BEGIN
 RETURN QUERY
-    SELECT Artist_Name AS Artist, No_of_listens
+    SELECT Artist_Name AS Artist, User_artists_ids.No_of_listens
     FROM Artists JOIN (SELECT Artist_Id, SUM(Count) AS No_of_listens
                         FROM Albums JOIN (SELECT *
                                             FROM  Frequency_heard
@@ -137,11 +168,11 @@ CREATE OR REPLACE FUNCTION User_top_songs(userx VARCHAR(10))
 $$
 BEGIN
 RETURN QUERY
-    SELECT Song, Artists.Artist_Name AS Artist, No_of_listens
+    SELECT artistids.Song, Artists.Artist_Name AS Artist, artistids.No_of_listens
     FROM Artists JOIN (SELECT Songs.Title AS Song, Albums.Artist_Id AS Artist_Id, User_listens.Count AS No_of_listens
                         FROM Songs JOIN (SELECT *
                                             FROM  Frequency_heard
-                                            WHERE Username = userx) AS User_listens USING(Album_Id, Track_No) JOIN Albums USING(Album_Id, Track_No)
+                                            WHERE Username = userx) AS User_listens USING(Album_Id, Track_No) JOIN Albums USING(Album_Id)
                         LIMIT 15) AS artistids USING (Artist_Id)
     ORDER BY No_of_listens DESC;
 END
@@ -162,43 +193,53 @@ CREATE OR REPLACE FUNCTION User_listen_song(songx VARCHAR(100))
 $$
 BEGIN
 RETURN QUERY
-    SELECT Album_Id, Albums.Title AS Album, Track_No, songids.Title AS Song, Artist_Name AS Artist
-    FROM Albums JOIN (SELECT Album_Id, Track_No, Title
-                        FROM Songs
-                        WHERE Title = songx) AS songids USING (Album_Id)
-    ORDER BY Album_Id;
+    SELECT albumids.Album_Id, albumids.Album AS Album, albumids.Track_No, albumids.Song AS Song, Artists.Artist_Name AS Artist
+    FROM Artists JOIN (SELECT Albums.Artist_Id, Albums.Album_Id, Albums.Title AS Album, songids.Track_No, songids.Title AS Song
+                        FROM Albums JOIN (SELECT Songs.Album_Id, Songs.Track_No, Songs.Title
+                                            FROM Songs
+                                            WHERE Songs.Title = songx) AS songids USING (Album_Id)
+                        ORDER BY Albums.Album_Id) AS albumids USING (Artist_Id);
 END
 $$;
 
 --------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION User_listen_id(albumidx INT, tracknox INT, userx VARCHAR(10))
-    RETURNS INT
+    RETURNS BIGINT
     LANGUAGE plpgsql
-    AS
+AS
 $$
+DECLARE
+    song_record Songs;  -- Declare a variable to store the result of the SELECT statement
 BEGIN
-SELECT *
-FROM Songs
-WHERE Album_Id = albumidx AND Track_No = tracknox;
-IF NOT FOUND THEN
-    RAISE NOTICE 'No such track exists.';
-    RETURN -1;
-ELSE
     SELECT *
-    FROM Frequency_heard
-    WHERE Username = userx AND Album_Id = albumidx AND Track_No = tracknox;
-    IF FOUND THEN
-        UPDATE Frequency_heard
-        SET Count = Count + 1
-        WHERE Username = userx AND Album_Id = albumidx AND Track_No = tracknox;
-        RETURN 0;
+    INTO song_record
+    FROM Songs
+    WHERE Album_Id = albumidx AND Track_No = tracknox;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'No such track exists.';
+        RETURN -1;
     ELSE
-        INSERT INTO Frequency_heard
-        VALUES (userx, albumidx, tracknox, 1);
-        RETURN 1;
+        -- Check if the user has already listened to the track
+        SELECT 1
+        INTO song_record
+        FROM Frequency_heard
+        WHERE Username = userx AND Album_Id = albumidx AND Track_No = tracknox;
+
+        IF FOUND THEN
+            -- If user has listened, update the count
+            UPDATE Frequency_heard
+            SET Count = Count + 1
+            WHERE Username = userx AND Album_Id = albumidx AND Track_No = tracknox;
+            RETURN 0;
+        ELSE
+            -- If user has not listened, insert a new record
+            INSERT INTO Frequency_heard (Username, Album_Id, Track_No, Count)
+            VALUES (userx, albumidx, tracknox, 1);
+            RETURN 1;
+        END IF;
     END IF;
-END IF;
 END
 $$;
 
@@ -226,7 +267,7 @@ BEGIN
             LIMIT 1) AS countis;
     RETURN QUERY
         SELECT Albums.Title AS Suggested_Album, Songs.Title AS Suggested_song_from_album
-        FROM Albums JOIN Songs USING (Album_Id, Track_No)
+        FROM Albums JOIN Songs USING (Album_Id)
         WHERE Genre = topGenre
         ORDER BY Times_heard DESC
         LIMIT 15;
