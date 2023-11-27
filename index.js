@@ -6,8 +6,7 @@ var choice = Number(prompt(`Enter 1 for "Listing top artists of all time"\n
                      Enter 2 to see number of listeners of a particular artist\n
                      Enter 3 for seeing top artists, genre-wise\n
                      Enter 4 to login\n
-                     Enter 5 to register as a user\n
-                     Enter 6 to publish an album\n`));
+                     Enter 5 to register as a user\n`));
 switch (choice) {
   case 1:
     let count = Number(prompt("How many top artists do you want to see?"));
@@ -147,14 +146,6 @@ switch (choice) {
       console.log("Authentication failed.\n");
       break;
     }
-    break;
-  }
-  
-  case 6:
-  {
-    let artistname = prompt("Enter your artist name: ");
-    let albumname = prompt("Enter album name: ");
-    let trackcount = Number(prompt("Enter number of tracks: "));
     break;
   }
 

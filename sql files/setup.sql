@@ -38,6 +38,7 @@ CREATE TABLE Songs(
     Track_No INT NOT NULL,
     Title VARCHAR(100) NOT NULL,
     Duration TIME NOT NULL,
+    Times_heard INT,
     PRIMARY KEY(Album_Id, Track_No),
     FOREIGN KEY(Album_Id) REFERENCES Albums(Album_Id) ON DELETE CASCADE
 );

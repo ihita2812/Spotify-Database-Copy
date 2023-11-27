@@ -182,3 +182,7 @@ ELSE
 END IF;
 END
 $$;
+
+--------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION User_recommend(userx VARCHAR(10))
