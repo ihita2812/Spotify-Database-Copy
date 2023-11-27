@@ -1,3 +1,24 @@
+CREATE OR REPLACE FUNCTION Update_Songs()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+    AS
+$$
+BEGIN
+UPDATE Songs
+SET Times_heard = NEW.Count
+WHERE Album_Id = NEW.Album_Id AND Track_No = NEW.Track_No;
+RETURN NEW;
+END
+$$;
+
+--------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE TRIGGER UpdateSongs
+AFTER UPDATE OR INSERT ON Frequency_heard
+EXECUTE FUNCTION Update_Songs();
+
+--------------------------------------------------------------------------------------------------------
+
 CREATE OR REPLACE FUNCTION Top_artists(countx INT)
     RETURNS TABLE(
         Artist VARCHAR(100),
@@ -58,7 +79,6 @@ END
 $$;
 
 --------------------------------------------------------------------------------------------------------
-----------------------------------ADD PROCEDURE USAGE HERE!!!!!!!---------------------------------------
 
 CREATE OR REPLACE FUNCTION User_top_genre(userx VARCHAR(10))
     RETURNS TABLE(
@@ -81,7 +101,6 @@ END
 $$;
 
 --------------------------------------------------------------------------------------------------------
-----------------------------------ADD PROCEDURE USAGE HERE!!!!!!!---------------------------------------
 
 CREATE OR REPLACE FUNCTION User_top_artists(userx VARCHAR(10))
     RETURNS TABLE(
@@ -105,7 +124,6 @@ END
 $$;
 
 --------------------------------------------------------------------------------------------------------
-----------------------------------ADD PROCEDURE USAGE HERE!!!!!!!---------------------------------------
 
 CREATE OR REPLACE FUNCTION User_top_songs(userx VARCHAR(10))
     RETURNS TABLE(
@@ -186,3 +204,30 @@ $$;
 --------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION User_recommend(userx VARCHAR(10))
+    RETURNS TABLE(
+        Suggested_Album VARCHAR(100),
+        Suggested_song_from_album VARCHAR(100)
+    )
+    LANGUAGE plpgsql
+    AS
+$$
+DECLARE
+    topGenre GENRETYPE;
+BEGIN
+    SELECT Genre
+    INTO topGenre
+    FROM (SELECT Genre, SUM(Count) AS No_of_listens
+            FROM Albums JOIN (SELECT *
+                                FROM  Frequency_heard
+                                WHERE Username = userx) AS User_listens USING(Album_Id)
+            GROUP BY Genre
+            ORDER BY No_of_listens DESC
+            LIMIT 1) AS countis;
+    RETURN QUERY
+        SELECT Albums.Title AS Suggested_Album, Songs.Title AS Suggested_song_from_album
+        FROM Albums JOIN Songs USING (Album_Id, Track_No)
+        WHERE Genre = topGenre
+        ORDER BY Times_heard DESC
+        LIMIT 15;
+END
+$$;
