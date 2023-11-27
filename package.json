@@ -1,0 +1,31 @@
+{
+  "name": "spotify-database-copy",
+  "version": "1.0.0",
+  "description": "CS301 Course Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ihita2812/Spotify-Database-Copy.git"
+  },
+  "keywords": [
+    "Databases",
+    "SQL",
+    "PSQL",
+    "PostgreSQL",
+    "Spotify",
+    "Music"
+  ],
+  "author": "Ihita Sinha",
+  "bugs": {
+    "url": "https://github.com/ihita2812/Spotify-Database-Copy/issues"
+  },
+  "homepage": "https://github.com/ihita2812/Spotify-Database-Copy#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "prompt-sync": "^4.2.0"
+  }
+}
