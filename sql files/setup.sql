@@ -3,14 +3,15 @@ DROP TABLE IF EXISTS Users CASCADE;
 DROP TABLE IF EXISTS Songs CASCADE;
 DROP TABLE IF EXISTS Albums CASCADE;
 DROP TABLE IF EXISTS Artists CASCADE;
+DROP DOMAIN IF EXISTS GENRETYPE CASCADE;
 
--- CREATE DOMAIN GENRETYPE AS
--- VARCHAR(50)
--- CHECK (
---     value = 'Rock'
---     OR value = 'Pop'
---     OR value = 'Rap'
--- );
+CREATE DOMAIN GENRETYPE AS
+VARCHAR(50)
+CHECK (
+    value = 'Rock'
+    OR value = 'Pop'
+    OR value = 'Rap'
+);
 
 CREATE TABLE Artists(
     Artist_Id INT NOT NULL,

@@ -1,52 +1,13 @@
 const prompt = require('prompt-sync')({sigint: true});
 const db = require('./local_modules/db-connect.js');
-
-//----------------TESTING----------------------------------
-// const backslashD = `SELECT n.nspname as "Schema",
-// c.relname as "Name",
-// CASE c.relkind WHEN 'r' THEN 'table' WHEN 'v' THEN 'view' WHEN 'm' THEN 'materialized view' WHEN 'i' THEN 'index' WHEN 'S' THEN 'sequence' WHEN 't' THEN 'TOAST table' WHEN 'f' THEN 'foreign table' WHEN 'p' THEN 'partitioned table' WHEN 'I' THEN 'partitioned index' END as "Type",
-// pg_catalog.pg_get_userbyid(c.relowner) as "Owner"
-// FROM pg_catalog.pg_class c
-//    LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-//    LEFT JOIN pg_catalog.pg_am am ON am.oid = c.relam
-// WHERE c.relkind IN ('r','p','v','m','S','f','')
-//     AND n.nspname <> 'pg_catalog'
-//     AND n.nspname !~ '^pg_toast'
-//     AND n.nspname <> 'information_schema'
-// AND pg_catalog.pg_table_is_visible(c.oid)
-// ORDER BY 1,2;`;
-
-// const db = new pg.Client({
-//     user: db_values.user,
-//     host: db_values.host,
-//     database: db_values.database,
-//     password: db_values.password,
-//     port: db_values.port
-// });
-
-// db.connect();
-
-// const show_query = backslashD;
-
-// db.query(show_query, (err, res) => {
-//     if (err) {
-//       // console.log(show_query);
-//       console.error("Error executing query", err.stack);
-//     } else {
-//       console.log(res.rows);
-//     }
-//     db.end();
-// });
-//----------------TESTING----------------------------------
-
-//main
-
-
+const user = require('./local_modules/user-login.js');
 
 var choice = Number(prompt(`Enter 1 for "Listing top artists of all time"\n
                      Enter 2 to see number of listeners of a particular artist\n
                      Enter 3 for seeing top artists, genre-wise\n
-                     Enter 4 to login\n`));
+                     Enter 4 to login\n
+                     Enter 5 to register as a user\n
+                     Enter 6 to publish an album\n`));
 switch (choice) {
   case 1:
     let count = Number(prompt("How many top artists do you want to see?"));
@@ -81,9 +42,121 @@ switch (choice) {
     break;
   
   case 4:
+  {
     let username = prompt("Enter user name: ");
     let pswd = prompt("Enter password: ");
+    let authSuccess = user.authenticate(username, pswd);
+    if (authSuccess == -1) {
+      console.log("Query error!\n");
+      break;
+    } else if (authSuccess == 0) {
+      console.log("Authentication failed.\n");
+      break;
+    }
+    user.options();
+    let choice2 = Number(prompt());
+    switch (choice2) {
+      case 1:
+      {
+        db.query(`User_top_genre(${username});`, (err, res) => {
+          if (err) {
+            console.error("Error executing query", err.stack);
+          } else {
+            console.log(res.rows);
+          }
+        });
+        break;
+      }
+      case 2:
+      {
+        db.query(`User_top_artists(${username});`, (err, res) => {
+          if (err) {
+            console.error("Error executing query", err.stack);
+          } else {
+            console.log(res.rows);
+          }
+        });
+        break;
+      }
+      case 3:
+      {
+        db.query(`User_top_songs(${username});`, (err, res) => {
+          if (err) {
+            console.error("Error executing query", err.stack);
+          } else {
+            console.log(res.rows);
+          }
+        });
+        break;
+      }
+      case 4:
+        break;
+      case 5:
+      {
+        let choice3 = Number(prompt(`Enter 1 to listen with album no. and track no.\n
+                                      Enter 2 to listen by song name\n`));
+        switch (choice3) {
+          case 1:
+          {
+            let albumid = Number(prompt("Enter album id: "));
+            let trackno = Number(prompt("Enter track no.: "));
+            db.query(`User_listen_id(${albumid}, ${trackno}, ${username});`, (err, res) => {
+              if (err) {
+                console.error("Error executing query", err.stack);
+              } else {
+                if (res == -1) console.log("Song not found.\n");
+                else console.log("listened to song.\n");
+              }
+            });
+            break;
+          }
+          case 2:
+          {
+            let songname = prompt("Enter song name: ");
+            db.query(`User_listen_song(${songname});`, (err, res) => {
+              if (err) {
+                console.error("Error executing query", err.stack);
+              } else {
+                console.log("Select appropriate album id and track no from the following-\n");
+                console.log(res.rows);
+              }
+            });
+            break;
+          }
+          default:
+            break;
+        }
+        break;
+      }
+      case 6:
+        break;
+      default:
+        break;
+    }
+  }
+  
+  case 5:
+  {
+    let username = prompt("Enter user name: ");
+    let pswd = prompt("Enter password: ");
+    let regSuccess = user.register(username, pswd);
+    if (regSuccess == -1) {
+      console.log("Query error!\n");
+      break;
+    } else if (regSuccess == 0) {
+      console.log("Authentication failed.\n");
+      break;
+    }
     break;
+  }
+  
+  case 6:
+  {
+    let artistname = prompt("Enter your artist name: ");
+    let albumname = prompt("Enter album name: ");
+    let trackcount = Number(prompt("Enter number of tracks: "));
+    break;
+  }
 
   default:
     console.log("Enter correct choice!");

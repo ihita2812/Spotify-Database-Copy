@@ -1,0 +1,5 @@
+DELETE FROM Songs;
+DELETE FROM Albums;
+DELETE FROM Artists;
+DELETE FROM Users;
+DELETE FROM Frequency_heard;
