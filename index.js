@@ -1,6 +1,5 @@
-const pg = require('pg');
 const prompt = require('prompt-sync')({sigint: true});
-const db_values = require('./local_modules/db-config.js');
+const db = require('./local_modules/db-connect.js');
 
 //----------------TESTING----------------------------------
 // const backslashD = `SELECT n.nspname as "Schema",
@@ -42,15 +41,7 @@ const db_values = require('./local_modules/db-config.js');
 
 //main
 
-const db = new pg.Client({
-  user: db_values.user,
-  host: db_values.host,
-  database: db_values.database,
-  password: db_values.password,
-  port: db_values.port
-});
 
-db.connect();
 
 var choice = Number(prompt(`Enter 1 for "Listing top artists of all time"\n
                      Enter 2 to see number of listeners of a particular artist\n
@@ -80,9 +71,18 @@ switch (choice) {
     break;
   
   case 3:
+    db.query(`Top_artists_genre();`, (err, res) => {
+      if (err) {
+        console.error("Error executing query", err.stack);
+      } else {
+        console.log(res.rows);
+      }
+    });
     break;
   
   case 4:
+    let username = prompt("Enter user name: ");
+    let pswd = prompt("Enter password: ");
     break;
 
   default:
