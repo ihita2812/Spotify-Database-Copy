@@ -58,7 +58,7 @@ INSERT INTO Artists (Artist_Id, Artist_Name, Total_albums, Total_songs) VALUES
 (49, 'Blake Shelton', 12, 110),
 (50, 'Queen', 15, 150);
 
-
+-- Albums data
 INSERT INTO Albums (Album_Id, Title, Artist_Id, Duration, Release_Date, No_of_tracks, Genre) VALUES
 (1, '1989', 1, '00:48:41', '2014-10-27', 13, 'Pop'),
 (2, '÷ (Divide)', 2, '00:46:14', '2017-03-03', 12, 'Pop'),
@@ -78,9 +78,9 @@ INSERT INTO Albums (Album_Id, Title, Artist_Id, Duration, Release_Date, No_of_tr
 (16, 'Yeezus', 6, '00:40:01', '2013-06-18', 10, 'Hip-Hop'),
 (17, 'Talk That Talk', 7, '00:37:18', '2011-11-18', 11, 'R&B'),
 (18, 'Believe', 8, '00:48:24', '2012-06-15', 13, 'Pop'),
-(19, 'Recovery', 9, '00:76:25', '2010-06-18', 17, 'Hip-Hop'),
+(19, 'Recovery', 9, '01:16:25', '2010-06-18', 17, 'Hip-Hop'),
 (20, 'Joanne', 10, '00:39:02', '2016-10-21', 11, 'Pop'),
-(21, 'Starboy', 13, '00:68:40', '2016-11-25', 18, 'R&B'),
+(21, 'Starboy', 13, '01:08:40', '2016-11-25', 18, 'R&B'),
 (22, 'In The Lonely Hour', 26, '00:54:54', '2014-05-26', 10, 'Pop'),
 (23, 'Good News', 31, '00:49:05', '2020-11-10', 16, 'Hip-Hop'),
 (24, 'Love Is An Art', 32, '00:44:30', '2020-03-20', 13, 'Pop'),
@@ -91,10 +91,10 @@ INSERT INTO Albums (Album_Id, Title, Artist_Id, Duration, Release_Date, No_of_tr
 (29, 'Future Nostalgia', 21, '00:37:16', '2020-03-27', 11, 'Pop'),
 (30, 'Harry Styles', 22, '00:46:31', '2017-05-12', 10, 'Pop'),
 (31, 'Happier Than Ever', 44, '00:56:43', '2021-07-30', 16, 'Pop'),
-(32, 'Fetty Wap', 45, '00:61:29', '2015-09-25', 20, 'Hip-Hop'),
+(32, 'Fetty Wap', 45, '01:01:29', '2015-09-25', 20, 'Hip-Hop'),
 (33, 'Up All Night', 46, '00:45:24', '2011-11-18', 13, 'Pop'),
 (34, 'Manic', 33, '00:47:52', '2020-01-17', 16, 'Pop'),
-(35, 'Rodeo', 18, '00:65:23', '2015-09-04', 16, 'Hip-Hop'),
+(35, 'Rodeo', 18, '01:05:23', '2015-09-04', 16, 'Hip-Hop'),
 (36, 'Norman Fucking Rockwell!', 30, '01:07:18', '2019-08-30', 14, 'Pop'),
 (37, 'Cuz I Love You', 25, '00:33:47', '2019-04-19', 11, 'R&B'),
 (38, 'Fine Line', 22, '00:47:29', '2019-12-13', 12, 'Pop'),
@@ -134,8 +134,8 @@ INSERT INTO Albums (Album_Id, Title, Artist_Id, Duration, Release_Date, No_of_tr
 (72, 'Yeezus', 6, '00:40:01', '2013-06-18', 10, 'Hip-Hop'),
 (73, 'Talk That Talk', 7, '00:37:18', '2011-11-18', 11, 'R&B'),
 (74, 'Believe', 8, '00:48:24', '2012-06-15', 13, 'Pop'),
-(75, 'Recovery', 9, '00:76:25', '2010-06-18', 17, 'Hip-Hop'),
+(75, 'Recovery', 9, '01:16:25', '2010-06-18', 17, 'Hip-Hop'),
 (76, 'Joanne', 10, '00:39:02', '2016-10-21', 11, 'Pop'),
 (77, 'In The Lonely Hour', 26, '00:54:54', '2014-05-26', 10, 'Pop'),
 (78, 'Good News', 31, '00:49:05', '2020-11-10', 16, 'Hip-Hop'),
-(79, 'Love Is An Art', 32, '00:44:30', '2020-03-20', 13, 'Pop'),
+(79, 'Love Is An Art', 32, '00:44:30', '2020-03-20', 13, 'Pop');

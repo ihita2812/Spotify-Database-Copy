@@ -14,6 +14,8 @@ CHECK (
     OR value = 'Country'
     OR value = 'Psychedelic Rock'
     OR value = 'Indie Folk'
+    OR value = 'Rock'
+    OR value = 'Indie Pop'
 );
 
 CREATE TABLE Artists(
