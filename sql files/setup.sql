@@ -8,9 +8,12 @@ DROP DOMAIN IF EXISTS GENRETYPE CASCADE;
 CREATE DOMAIN GENRETYPE AS
 VARCHAR(50)
 CHECK (
-    value = 'Rock'
+    value = 'R&B'
     OR value = 'Pop'
-    OR value = 'Rap'
+    OR value = 'Hip-Hop'
+    OR value = 'Country'
+    OR value = 'Psychedelic Rock'
+    OR value = 'Indie Folk'
 );
 
 CREATE TABLE Artists(
