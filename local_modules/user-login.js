@@ -1,16 +1,29 @@
-const db = require('./db-connect.js');
+const pg = require('pg');
+const db_values = require('./db-config.js');
 
 function authenticateUser(username, pass) {
-    db.query(`Authenticate_user(${username}, ${pass});`, (err, res) => {
+    var db = new pg.Client({
+        user: db_values.user,
+        host: db_values.host,
+        database: db_values.database,
+        password: db_values.password,
+        port: db_values.port
+    });
+    
+    db.connect();
+    
+    db.query(`SELECT * FROM authenticate_user('${username}', '${pass}');`, (err, res) => {
         if (err) {
             console.error("Error executing query", err.stack);
             return -1;
         } else {
-            if (res != 1) {
+            if (res.rows.authenticate_user != 1) {
                 console.log("Authentication failed.\n");
+                db.end();
                 return 0;
             } else {
                 console.log("Authenticated!\n");
+                db.end();
                 return 1;
             }
         }
@@ -18,7 +31,7 @@ function authenticateUser(username, pass) {
 }
 
 function registerUser(username, pass) {
-    db.query(`Register_user(${username}, ${pass});`, (err, res) => {
+    db.query(`SELECT * FROM Register_user('${username}', '${pass}');`, (err, res) => {
         if (err) {
             console.error("Error executing query", err.stack);
             return -1;

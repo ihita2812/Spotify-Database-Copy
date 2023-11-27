@@ -1,48 +1,76 @@
+const pg = require('pg');
 const prompt = require('prompt-sync')({sigint: true});
-const db = require('./local_modules/db-connect.js');
+const db_values = require('./local_modules/db-config.js');
 const user = require('./local_modules/user-login.js');
 
-while (1) {
-  var choice = Number(prompt(`Enter 1 for listing top artists of all time\n
-                      Enter 2 to see number of listeners of a particular artist\n
-                      Enter 3 for seeing top artists, genre-wise\n
-                      Enter 4 to login\n
-                      Enter 5 to register as a user\n
-                      Enter 6 to exit.\n`));
+// while (1) {
+  var choice = Number(prompt(`Enter 1 for listing top artists of all time\nEnter 2 to see number of listeners of a particular artist\nEnter 3 for seeing top artists, genre-wise\nEnter 4 to login\nEnter 5 to register as a user\nEnter 6 to exit.\n`));
   if (choice == 6) {
     console.log("exiting database.\n");
     db.end();
-    break;
+    // break;
   }
   switch (choice) {
     case 1:
+      var db = new pg.Client({
+        user: db_values.user,
+        host: db_values.host,
+        database: db_values.database,
+        password: db_values.password,
+        port: db_values.port
+      });
+      
+      db.connect();
       let count = Number(prompt("How many top artists do you want to see?"));
-      db.query(`Top_artists(${count});`, (err, res) => {
+      db.query(`SELECT * FROM top_artists(${count});`, (err, res) => {
+        console.log(`Top_artists(${count});`);
         if (err) {
           console.error("Error executing query", err.stack);
         } else {
           console.log(res.rows);
+          db.end();
         }
       });
       break;
     
     case 2:
+      var db = new pg.Client({
+        user: db_values.user,
+        host: db_values.host,
+        database: db_values.database,
+        password: db_values.password,
+        port: db_values.port
+      });
+      
+      db.connect();
+      
       let artist = prompt("Enter name of artist: ");
-      db.query(`Artist_count(${artist});`, (err, res) => {
+      db.query(`SELECT * FROM Artist_count('${artist}');`, (err, res) => {
         if (err) {
           console.error("Error executing query", err.stack);
         } else {
           console.log(res.rows);
+          db.end();
         }
       });
       break;
     
     case 3:
-      db.query(`Top_artists_genre();`, (err, res) => {
+      var db = new pg.Client({
+        user: db_values.user,
+        host: db_values.host,
+        database: db_values.database,
+        password: db_values.password,
+        port: db_values.port
+      });
+      
+      db.connect();
+      db.query(`SELECT * FROM Top_artists_genre();`, (err, res) => {
         if (err) {
           console.error("Error executing query", err.stack);
         } else {
           console.log(res.rows);
+          db.end();
         }
       });
       break;
@@ -59,7 +87,7 @@ while (1) {
         console.log("Authentication failed.\n");
         break;
       }
-      while (1) {    
+      // while (1) {    
         user.options();
         let choice2 = Number(prompt());
         if (choice2 == 6) {
@@ -69,11 +97,27 @@ while (1) {
         switch (choice2) {
           case 1:
           {
-            db.query(`User_top_genre(${username});`, (err, res) => {
+            var db = new pg.Client({
+              user: db_values.user,
+              host: db_values.host,
+              database: db_values.database,
+              password: db_values.password,
+              port: db_values.port
+            });
+            
+            
+            db.connect((err) => {
+              if(err){
+                  console.log(err)
+              }
+              console.log('MySql Connected...')
+          });
+            db.query(`SELECT * FROM User_top_genre('${username}');`, (err, res) => {
               if (err) {
                 console.error("Error executing query", err.stack);
               } else {
                 console.log(res.rows);
+                db.end();
               }
             });
             break;
@@ -154,7 +198,7 @@ while (1) {
             console.error("Enter correct choice!\n");
             break;
         }
-      }
+      // }
     }
     
     case 5:
@@ -179,6 +223,6 @@ while (1) {
       console.log("Enter correct choice!");
       break;
   }
-}
+// }
 
 
